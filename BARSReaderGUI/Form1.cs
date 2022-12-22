@@ -64,7 +64,7 @@ namespace BARSReaderGUI
                     bwavListBox.Items.Clear();
                     for (int i = 0; i < assetcount; i++)
                     {
-                        bwavListBox.Items.Add(ReadAMTAName(assets[i].Value.amtaoffset, reader));
+                        bwavListBox.Items.Add(ReadAMTA(assets[i].Value.amtaoffset, reader));
                     }
 
                     MessageBox.Show("Successfully read " + assetcount + " assets.");
@@ -72,29 +72,43 @@ namespace BARSReaderGUI
             }
         }
 
-        public string ReadAMTAName(uint startPosition, NativeReader reader)
+        public void ReadAMTA(uint startPosition, NativeReader reader)
         {
-            reader.Position = startPosition;
-            string magic = reader.ReadSizedString(4);
-            ushort endian = reader.ReadUShort();
-            ushort version = reader.ReadUShort();
-            string fileName;
 
-            if (magic != "AMTA")
-                return "";
+            //reader.Position = startPosition;
+            //string magic = reader.ReadSizedString(4);
+            //ushort endian = reader.ReadUShort();
+            //ushort version = reader.ReadUShort();
+            //uint size = reader.ReadUInt();
+            //uint unk1 = reader.ReadUInt();
+            //uint unk2 = reader.ReadUInt();
+            //uint unk3 = reader.ReadUInt();
+            //uint unk4 = reader.ReadUInt();
+            //uint unk5 = reader.ReadUInt();
+            //uint unk6 = reader.ReadUInt();
 
-            if (endian != 0xFEFF)
-                return "";
+            //string fileName;
 
-            reader.Position += 0x1C;
+            //if (magic != "AMTA")
+            //    return "";
 
-            uint nameOffset1 = reader.ReadUInt();
-            reader.Position = startPosition + nameOffset1 + 36;
-            fileName = reader.ReadNullTerminatedString();
+            //if (endian != 0xFEFF)
+            //    return "";
 
-            reader.Position = startPosition;
+            //reader.Position += 0x1C;
 
-            return fileName;
+            //uint nameOffset1 = reader.ReadUInt();
+            //reader.Position = startPosition + nameOffset1 + 36;
+            //fileName = reader.ReadNullTerminatedString();
+
+            //reader.Position = startPosition;
+
+            //return fileName;
         }
+    }
+    public class AssetOffsetPair
+    {
+        public uint amtaoffset;
+        public uint bwavoffset;
     }
 }
