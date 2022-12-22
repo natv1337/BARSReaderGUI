@@ -64,7 +64,11 @@ namespace BARSReaderGUI
                     bwavListBox.Items.Clear();
                     for (int i = 0; i < assetcount; i++)
                     {
-                        bwavListBox.Items.Add(ReadAMTA(assets[i].Value.amtaoffset, reader));
+                        reader.Position = assets[i].Value.amtaoffset + 0x24;
+                        uint unkOffset = reader.ReadUInt();
+                        reader.Position = assets[i].Value.amtaoffset + unkOffset + 36;
+
+                        bwavListBox.Items.Add(reader.ReadNullTerminatedString());
                     }
 
                     MessageBox.Show("Successfully read " + assetcount + " assets.");
