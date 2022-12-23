@@ -9,24 +9,31 @@ namespace BARSReaderGUI
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Stream fileStream;
             OpenFileDialog fileDialog = new OpenFileDialog();
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 string inputFile = fileDialog.FileName;
 
+                // Check for compression first.
                 using (NativeReader reader = new(new FileStream(inputFile, FileMode.Open)))
                 {
-                    if (reader.ReadUInt() == 0xFD2FB528) //zstd check
+                    if (reader.ReadUInt() == 0xFD2FB528)
                     {
-                        MessageBox.Show("ZSTD Compressed files not supported at this time."); //need to add zstd decompression
-                        return;
+                        ZstdUtils zstdUtils = new ZstdUtils();
+                        reader.Position -= 4;
+                        fileStream = zstdUtils.Decompress(reader.BaseStream); // Stores decompressed data into stream
                     }
                     else
                     {
-                        reader.Position = 0; //reset position
+                        fileStream = reader.BaseStream; // If no compression is found, we store the original file data in the stream.
                     }
+                }
 
+                // Read the file stored in the stream.
+                using (NativeReader reader = new NativeReader(fileStream))
+                {
                     string magic;
                     uint size;
                     ushort endian;
@@ -81,6 +88,7 @@ namespace BARSReaderGUI
                         bwavListBox.Items.Add(reader.ReadNullTerminatedString());
                     }
 
+                    this.Text = $"BARSReaderGUI - {fileDialog.SafeFileName} - {assetcount} Assets";
                     MessageBox.Show("Successfully read " + assetcount + " assets.");
                 }
             }
