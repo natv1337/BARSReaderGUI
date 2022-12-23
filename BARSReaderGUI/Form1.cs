@@ -17,6 +17,16 @@ namespace BARSReaderGUI
 
                 using (NativeReader reader = new(new FileStream(inputFile, FileMode.Open)))
                 {
+                    if (reader.ReadUInt() == 0xFD2FB528) //zstd check
+                    {
+                        MessageBox.Show("ZSTD Compressed files not supported at this time."); //need to add zstd decompression
+                        return;
+                    }
+                    else
+                    {
+                        reader.Position = 0; //reset position
+                    }
+
                     string magic;
                     uint size;
                     ushort endian;
@@ -27,7 +37,7 @@ namespace BARSReaderGUI
                     magic = reader.ReadSizedString(4);
                     if (magic != "BARS")
                     {
-                        MessageBox.Show("Not a BARS file. Did you decompress it first?"); //this is for when future me is an idiot, we really need to implement zstd decompression
+                        MessageBox.Show("Not a BARS file.");
                         return;
                     }
 
