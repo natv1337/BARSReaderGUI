@@ -27,7 +27,7 @@ namespace BARSReaderGUI
                     magic = reader.ReadSizedString(4);
                     if (magic != "BARS")
                     {
-                        MessageBox.Show("Not a BARS file. Did you decompress it first?"); //this is for when future me is an idiot
+                        MessageBox.Show("Not a BARS file. Did you decompress it first?"); //this is for when future me is an idiot, we really need to implement zstd decompression
                         return;
                     }
 
@@ -36,14 +36,14 @@ namespace BARSReaderGUI
                     endian = reader.ReadUShort();
                     if (endian != 0xFEFF)
                     {
-                        MessageBox.Show("Unsupported endian!"); //the version we support will likely never be big endian, so really this is unneeded but why not
+                        MessageBox.Show("Unsupported endian!");
                         return;
                     }
 
                     version = reader.ReadUShort();
                     if (version != 0x0102)
                     {
-                        MessageBox.Show("Unsupported version!"); //we don't support anything but v102, the latest version of the format
+                        MessageBox.Show("BARS V1.1 Is unsupported at this time."); //we don't support anything but v102 atm
                         return;
                     }
 
