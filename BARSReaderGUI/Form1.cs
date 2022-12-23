@@ -27,7 +27,8 @@ namespace BARSReaderGUI
                     }
                     else
                     {
-                        fileStream = reader.BaseStream; // If no compression is found, we store the original file data in the stream.
+                        reader.Position -= 4;
+                        fileStream = new MemoryStream(reader.BaseStream.ToArray()); // If no compression is found, we store the original file data in the stream.
                     }
                 }
 
