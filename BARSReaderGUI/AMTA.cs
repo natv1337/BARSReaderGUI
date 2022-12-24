@@ -18,8 +18,8 @@ namespace BARSReaderGUI
         public void ReadAMTA(uint startPosition, NativeReader reader)
         {
             reader.Position = startPosition;
-            string magic = reader.ReadSizedString(4); //always AMTA
-            ushort endian = reader.ReadUShort(); //0xFFFE for little, 0xFEFF for big
+            string magic = reader.ReadSizedString(4);
+            ushort endian = reader.ReadUShort();
             ushort version = reader.ReadUShort();
             uint size = reader.ReadUInt();
 

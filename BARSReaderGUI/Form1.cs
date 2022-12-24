@@ -35,37 +35,32 @@ namespace BARSReaderGUI
                 // Read the file stored in the stream.
                 using (NativeReader reader = new NativeReader(fileStream))
                 {
-                    string magic;
-                    uint size;
-                    ushort endian;
-                    ushort version;
-                    uint assetcount;
                     KeyValuePair<uint, AssetOffsetPair>[] assets;
 
-                    magic = reader.ReadSizedString(4);
+                    string magic = reader.ReadSizedString(4);
                     if (magic != "BARS")
                     {
                         MessageBox.Show("Not a BARS file.");
                         return;
                     }
 
-                    size = reader.ReadUInt();
+                    uint size = reader.ReadUInt();
 
-                    endian = reader.ReadUShort();
+                    ushort endian = reader.ReadUShort();
                     if (endian != 0xFEFF)
                     {
                         MessageBox.Show("Unsupported endian!");
                         return;
                     }
 
-                    version = reader.ReadUShort();
+                    ushort version = reader.ReadUShort();
                     if (version != 0x0102)
                     {
                         MessageBox.Show("BARS V1.1 Is unsupported at this time."); //we don't support anything but v102 atm
                         return;
                     }
 
-                    assetcount = reader.ReadUInt();
+                    uint assetcount = reader.ReadUInt();
                     assets = new KeyValuePair<uint, AssetOffsetPair>[assetcount];
 
                     // Pair CRC32 hash with asset
