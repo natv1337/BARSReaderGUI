@@ -105,40 +105,6 @@ namespace BARSReaderGUI
             }
         }
 
-        public void ReadAMTA(uint startPosition, NativeReader reader)
-        {
-
-            //reader.Position = startPosition;
-            //string magic = reader.ReadSizedString(4);
-            //ushort endian = reader.ReadUShort();
-            //ushort version = reader.ReadUShort();
-            //uint size = reader.ReadUInt();
-            //uint unk1 = reader.ReadUInt();
-            //uint unk2 = reader.ReadUInt();
-            //uint unk3 = reader.ReadUInt();
-            //uint unk4 = reader.ReadUInt();
-            //uint unk5 = reader.ReadUInt();
-            //uint unk6 = reader.ReadUInt();
-
-            //string fileName;
-
-            //if (magic != "AMTA")
-            //    return "";
-
-            //if (endian != 0xFEFF)
-            //    return "";
-
-            //reader.Position += 0x1C;
-
-            //uint nameOffset1 = reader.ReadUInt();
-            //reader.Position = startPosition + nameOffset1 + 36;
-            //fileName = reader.ReadNullTerminatedString();
-
-            //reader.Position = startPosition;
-
-            //return fileName;
-        }
-
         private void BwavListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             int index = BwavListBox.SelectedIndex;
