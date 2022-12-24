@@ -15,6 +15,7 @@ namespace BARSReaderGUI
     }
     public class AMTA //Audio Metadata
     {
+        public byte[] data;
         public void ReadAMTA(uint startPosition, NativeReader reader)
         {
             reader.Position = startPosition;

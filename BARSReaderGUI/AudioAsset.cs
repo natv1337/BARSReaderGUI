@@ -11,6 +11,7 @@ namespace BARSReaderGUI
         public uint crcHash;
         public uint amtaOffset;
         public uint bwavOffset;
+        public string assetName; 
         public AMTA amtaData = new AMTA();
     }
 }
