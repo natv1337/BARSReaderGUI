@@ -2,6 +2,7 @@ namespace BARSReaderGUI
 {
     public partial class Form1 : Form
     {
+        List<AudioAsset> audioAssets = new List<AudioAsset>();
         public Form1()
         {
             InitializeComponent();
@@ -14,6 +15,7 @@ namespace BARSReaderGUI
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
+                audioAssets.Clear();
                 string inputFile = fileDialog.FileName;
 
                 // Check for compression first.
@@ -61,25 +63,33 @@ namespace BARSReaderGUI
                     }
 
                     uint assetcount = reader.ReadUInt();
-                    assets = new KeyValuePair<uint, AssetOffsetPair>[assetcount];
+                    //assets = new KeyValuePair<uint, AssetOffsetPair>[assetcount];
+
+                    for (int i = 0; i < assetcount; i++)
+                        audioAssets.Add(new AudioAsset());
 
                     // Pair CRC32 hash with asset
                     for (int i = 0; i < assetcount; i++)
-                        assets[i] = new KeyValuePair<uint, AssetOffsetPair>(reader.ReadUInt(), new AssetOffsetPair());
+                        audioAssets[i].crcHash = reader.ReadUInt();
+                        //assets[i] = new KeyValuePair<uint, AssetOffsetPair>(reader.ReadUInt(), new AssetOffsetPair());
 
                     // Pair ATMA/BWAV offsets with asset
                     for (int i = 0; i < assetcount; i++)
                     {
-                        assets[i].Value.amtaoffset = reader.ReadUInt();
-                        assets[i].Value.bwavoffset = reader.ReadUInt();
+                        audioAssets[i].amtaOffset = reader.ReadUInt();
+                        audioAssets[i].bwavOffset = reader.ReadUInt();
+                        //assets[i].Value.amtaoffset = reader.ReadUInt();
+                        //assets[i].Value.bwavoffset = reader.ReadUInt();
                     }
 
                     bwavListBox.Items.Clear();
                     for (int i = 0; i < assetcount; i++)
                     {
-                        reader.Position = assets[i].Value.amtaoffset + 0x24;
+                        reader.Position = audioAssets[i].amtaOffset + 0x24;
+                        //reader.Position = assets[i].Value.amtaoffset + 0x24;
                         uint unkOffset = reader.ReadUInt();
-                        reader.Position = assets[i].Value.amtaoffset + unkOffset + 36;
+                        reader.Position = audioAssets[i].amtaOffset + unkOffset + 36;
+                        //reader.Position = assets[i].Value.amtaoffset + unkOffset + 36;
 
                         bwavListBox.Items.Add(reader.ReadNullTerminatedString());
                     }
