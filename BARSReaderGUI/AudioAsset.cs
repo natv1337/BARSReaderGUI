@@ -10,7 +10,7 @@ namespace BARSReaderGUI
     {
         public uint crcHash;
         public uint amtaOffset;
-        public uint bwavOffset;
+        public uint assetOffset;
         public string assetName; 
         public AMTA amtaData = new AMTA();
     }

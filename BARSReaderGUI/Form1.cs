@@ -77,7 +77,7 @@ namespace BARSReaderGUI
                     for (int i = 0; i < assetcount; i++)
                     {
                         audioAssets[i].amtaOffset = reader.ReadUInt();
-                        audioAssets[i].bwavOffset = reader.ReadUInt();
+                        audioAssets[i].assetOffset = reader.ReadUInt();
                     }
 
                     // Get names for audioAssets
@@ -145,7 +145,7 @@ namespace BARSReaderGUI
             AudioAssetNameLabel.Text = audioAssets[index].assetName;
             AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
             AudioAssetAmtaOffsetLabel.Text = audioAssets[index].amtaOffset.ToString("X");
-            AudioAssetBwavOffsetLabel.Text = audioAssets[index].bwavOffset.ToString("X");
+            AudioAssetBwavOffsetLabel.Text = audioAssets[index].assetOffset.ToString("X");
         }
     }
     public class AssetOffsetPair

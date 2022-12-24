@@ -10,6 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Res\BARSIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Res\BARSIcon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="ZstdNet" Version="1.4.5" />
   </ItemGroup>
 
