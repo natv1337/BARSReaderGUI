@@ -80,24 +80,32 @@ namespace BARSReaderGUI
                         audioAssets[i].assetOffset = reader.ReadUInt();
                     }
 
-                    // Get names for audioAssets
-                    for (int i = 0; i < assetcount; i++)
-                    {
-                        reader.Position = audioAssets[i].amtaOffset + 0x24;
-                        uint unkOffset = reader.ReadUInt();
-                        reader.Position = audioAssets[i].amtaOffset + unkOffset + 36;
-                        audioAssets[i].assetName = reader.ReadNullTerminatedString();
-                        BwavListBox.Items.Add(audioAssets[i].assetName);
-                    }
-
-                    // Read AMTA data
                     for (int i = 0; i < assetcount; i++)
                     {
                         audioAssets[i].amtaData = new AMTA();
-                        reader.Position = audioAssets[i].amtaOffset + 8;
-                        uint amtaSize = reader.ReadUInt();
-                        audioAssets[i].amtaData.data = reader.ReadBytes(Convert.ToInt32(amtaSize));
+                        audioAssets[i].amtaData.ReadAMTA(audioAssets[i].amtaOffset, reader);
+                        BwavListBox.Items.Add(audioAssets[i].amtaData.assetName);
                     }
+
+                    // Get names for audioAssets
+                    //for (int i = 0; i < assetcount; i++)
+                    //{
+                    //    reader.Position = audioAssets[i].amtaOffset + 0x24;
+                    //    uint unkOffset = reader.ReadUInt();
+                    //    reader.Position = audioAssets[i].amtaOffset + unkOffset + 36;
+                    //    audioAssets[i].assetName = reader.ReadNullTerminatedString();
+                    //    BwavListBox.Items.Add(audioAssets[i].assetName);
+                    //}
+
+                    //// Read AMTA data
+                    //for (int i = 0; i < assetcount; i++)
+                    //{
+                    //    audioAssets[i].amtaData = new AMTA();
+                    //    reader.Position = audioAssets[i].amtaOffset + 8;
+                    //    uint amtaSize = reader.ReadUInt();
+                    //    //audioAssets[i].amtaData.data = reader.ReadBytes(Convert.ToInt32(amtaSize));
+                    //}
+
 
                     this.Text = $"BARSReaderGUI - {fileDialog.SafeFileName} - {assetcount} Assets";
                     MessageBox.Show("Successfully read " + assetcount + " assets.");
@@ -108,7 +116,7 @@ namespace BARSReaderGUI
         private void BwavListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             int index = BwavListBox.SelectedIndex;
-            AudioAssetNameLabel.Text = audioAssets[index].assetName;
+            AudioAssetNameLabel.Text = audioAssets[index].amtaData.assetName;
             AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
             AudioAssetAmtaOffsetLabel.Text = audioAssets[index].amtaOffset.ToString("X");
             AudioAssetBwavOffsetLabel.Text = audioAssets[index].assetOffset.ToString("X");

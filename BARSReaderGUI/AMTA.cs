@@ -15,17 +15,29 @@ namespace BARSReaderGUI
     }
     public class AMTA //Audio Metadata
     {
-        public byte[] data;
+        // ? sort by variable name? or the order they would appear in the file data?
+        public string magic;
+        public ushort endian;
+        public ushort version;
+        public uint size;
+        public byte channelCount;
+        public string assetName;
+
         public void ReadAMTA(uint startPosition, NativeReader reader)
         {
             reader.Position = startPosition;
-            string magic = reader.ReadSizedString(4);
-            ushort endian = reader.ReadUShort();
-            ushort version = reader.ReadUShort();
-            uint size = reader.ReadUInt();
+            magic = reader.ReadSizedString(4);
+            endian = reader.ReadUShort();
+            version = reader.ReadUShort();
+            size = reader.ReadUInt();
 
             switch ((AMTAVersion)version)
             {
+                case AMTAVersion.V4:
+                    {
+
+                    }
+                    break;
                 case AMTAVersion.V5:
                     {
                         ReadAMTAV5(startPosition, reader);
@@ -47,16 +59,18 @@ namespace BARSReaderGUI
             uint unk5 = reader.ReadUInt();
             uint unk6 = reader.ReadUInt();
             ReadAMTADATAV5(startPosition, reader);
-            string assetname = reader.ReadNullTerminatedString();
+
+            reader.Position += 36; // This doesn't account for the non-Splatoon 3 AMTA datas.
+            assetName = reader.ReadNullTerminatedString();
         }
         public void ReadAMTADATAV5(uint startPosition, NativeReader reader)
         {
-            reader.Position = startPosition;
+            //reader.Position = startPosition;
             uint datasize = reader.ReadUInt();
             uint namehash = reader.ReadUInt(); //same as asset name hash
             uint unk1 = reader.ReadUInt();
             byte unk2 = reader.ReadByte();
-            byte channelcount = reader.ReadByte();
+            channelCount = reader.ReadByte();
             reader.Position = startPosition + datasize;
         }
 
