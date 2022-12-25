@@ -59,19 +59,17 @@ namespace BARSReaderGUI
             uint unk5 = reader.ReadUInt();
             uint unk6 = reader.ReadUInt();
             ReadAMTADATAV5(startPosition, reader);
-
-            reader.Position += 36; // This doesn't account for the non-Splatoon 3 AMTA datas.
             assetName = reader.ReadNullTerminatedString();
         }
         public void ReadAMTADATAV5(uint startPosition, NativeReader reader)
         {
-            //reader.Position = startPosition;
+            startPosition = (uint)reader.Position; //set start pos to data section start
             uint datasize = reader.ReadUInt();
             uint namehash = reader.ReadUInt(); //same as asset name hash
             uint unk1 = reader.ReadUInt();
             byte unk2 = reader.ReadByte();
             channelCount = reader.ReadByte();
-            reader.Position = startPosition + datasize;
+            reader.Position = startPosition + datasize; //return to start pos and use the size to skip over the rest of the section
         }
 
         //public class MINF //Music Info
