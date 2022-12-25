@@ -23,7 +23,7 @@ namespace BARSReaderGUI
         public byte channelCount;
         public string assetName;
 
-        public void ReadAMTA(uint startPosition, NativeReader reader)
+        public void ReadAMTA(long startPosition, NativeReader reader)
         {
             reader.Position = startPosition;
             magic = reader.ReadSizedString(4);
@@ -40,7 +40,7 @@ namespace BARSReaderGUI
                     break;
                 case AMTAVersion.V5:
                     {
-                        ReadAMTAV5(startPosition, reader);
+                        ReadAMTAV5(reader.Position, reader);
                     }
                     break;
                 default:
@@ -50,7 +50,7 @@ namespace BARSReaderGUI
         }
 
         #region V5
-        public void ReadAMTAV5(uint startPosition, NativeReader reader)
+        public void ReadAMTAV5(long startPosition, NativeReader reader)
         {
             uint unk1 = reader.ReadUInt();
             uint unk2 = reader.ReadUInt(); //observed 0x34 or 0x38
@@ -58,12 +58,11 @@ namespace BARSReaderGUI
             uint unk4 = reader.ReadUInt();
             uint unk5 = reader.ReadUInt();
             uint unk6 = reader.ReadUInt();
-            ReadAMTADATAV5(startPosition, reader);
+            ReadAMTADATAV5(reader.Position, reader);
             assetName = reader.ReadNullTerminatedString();
         }
-        public void ReadAMTADATAV5(uint startPosition, NativeReader reader)
+        public void ReadAMTADATAV5(long startPosition, NativeReader reader)
         {
-            startPosition = (uint)reader.Position; //set start pos to data section start
             uint datasize = reader.ReadUInt();
             uint namehash = reader.ReadUInt(); //same as asset name hash
             uint unk1 = reader.ReadUInt();
