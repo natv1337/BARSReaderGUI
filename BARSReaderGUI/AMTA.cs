@@ -35,7 +35,7 @@ namespace BARSReaderGUI
             {
                 case AMTAVersion.V4:
                     {
-
+                        ReadAMTAV4(reader.Position, reader);
                     }
                     break;
                 case AMTAVersion.V5:
@@ -48,6 +48,43 @@ namespace BARSReaderGUI
                     return;
             }
         }
+
+        #region V4
+        public void ReadAMTAV4(long startPosition, NativeReader reader)
+        {
+            uint dataoffset = reader.ReadUInt();
+            uint markoffset = reader.ReadUInt();
+            uint extoffset = reader.ReadUInt();
+            uint strgoffset = reader.ReadUInt();
+            ReadAMTADATAV4(dataoffset, reader);
+            ReadAMTAMARKV4(markoffset, reader);
+            ReadAMTAEXTV4(extoffset, reader);
+            ReadAMTASTRGV4(strgoffset, reader);
+        }
+        public void ReadAMTADATAV4(long startPosition, NativeReader reader)
+        {
+            startPosition = reader.Position;
+            reader.ReadSizedString(4);
+        }
+
+        public void ReadAMTAMARKV4(long startPosition, NativeReader reader)
+        {
+            startPosition = reader.Position;
+            reader.ReadSizedString(4);
+        }
+
+        public void ReadAMTAEXTV4(long startPosition, NativeReader reader)
+        {
+            startPosition = reader.Position;
+            reader.ReadSizedString(4);
+        }
+
+        public void ReadAMTASTRGV4(long startPosition, NativeReader reader)
+        {
+            startPosition = reader.Position;
+            reader.ReadSizedString(4);
+        } 
+        #endregion
 
         #region V5
         public void ReadAMTAV5(long startPosition, NativeReader reader)
