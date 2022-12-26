@@ -21,6 +21,10 @@ namespace BARSReaderGUI
         public uint size;
         public byte channelCount;
         public string assetName;
+        public AMTADATAV4 amtaDataV4 = new AMTADATAV4();
+        public AMTAMARKV4 amtaMarkV4 = new AMTAMARKV4();
+        public AMTAEXTV4 amtaExtV4 = new AMTAEXTV4();
+        public AMTASTRGV4 amtaStrgV4 = new AMTASTRGV4();
 
         public void ReadAMTA(long startPosition, NativeReader reader)
         {
@@ -62,12 +66,16 @@ namespace BARSReaderGUI
             public byte flags; //xxAx xBCC || A = 0 = BFWAV/BFSTP, 1 = BWAV || B = looping || C = Unknown, 2 for stream, 3 for prefetch stream
             public float volume;
             public uint samplerate;
+
+            public AMTALoopInfo loopInfo = new AMTALoopInfo();
             public class AMTALoopInfo
             {
                 public uint loopstartsample;
                 public uint loopendsample;
             }
             public float loudness;
+
+            public List<AMTAStreamTrack> streamTracks = new List<AMTAStreamTrack>();
             public class AMTAStreamTrack //theres 8 of these i think?
             {
                 public uint channelcount;
@@ -121,6 +129,26 @@ namespace BARSReaderGUI
         {
             startPosition = reader.Position;
             reader.ReadSizedString(4);
+            amtaDataV4.sectionsize = reader.ReadUInt();
+            amtaDataV4.nameoffset = reader.ReadUInt();
+            amtaDataV4.unk1 = reader.ReadUInt();
+            amtaDataV4.type = reader.ReadByte();
+            amtaDataV4.channelcount = reader.ReadByte();
+            amtaDataV4.usedstreamcount = reader.ReadByte();
+            amtaDataV4.flags = reader.ReadByte();
+            amtaDataV4.volume = reader.ReadFloat();
+            amtaDataV4.samplerate = reader.ReadUInt();
+            amtaDataV4.loopInfo.loopstartsample = reader.ReadUInt();
+            amtaDataV4.loopInfo.loopendsample = reader.ReadUInt();
+            amtaDataV4.loudness = reader.ReadFloat();
+            for (int i = 0; i < amtaDataV4.usedstreamcount; i++)
+            {
+                amtaDataV4.streamTracks.Add(new AMTADATAV4.AMTAStreamTrack());
+                amtaDataV4.streamTracks[i].channelcount = reader.ReadUInt();
+                amtaDataV4.streamTracks[i].volume = reader.ReadFloat();
+            }
+
+            amtaDataV4.peakamplitude = reader.ReadFloat();
         }
 
         public void ReadAMTAMARKV4(long startPosition, NativeReader reader)

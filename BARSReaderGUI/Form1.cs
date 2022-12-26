@@ -57,9 +57,9 @@ namespace BARSReaderGUI
                     }
 
                     ushort version = reader.ReadUShort();
-                    if (version != 0x0102)
+                    if (version != 0x0102 && version != 0x0101)
                     {
-                        MessageBox.Show("BARS V1.1 Is unsupported at this time."); //we don't support anything but v102 atm
+                        MessageBox.Show("This version of BARS is unsupported at this time."); //throw this error on trying to read anything other than v1.1/1.2
                         return;
                     }
 
