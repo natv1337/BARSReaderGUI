@@ -15,7 +15,6 @@ namespace BARSReaderGUI
     }
     public class AMTA //Audio Metadata
     {
-        // ? sort by variable name? or the order they would appear in the file data?
         public string magic;
         public ushort endian;
         public ushort version;
@@ -50,6 +49,63 @@ namespace BARSReaderGUI
         }
 
         #region V4
+        #region Classes
+        public class AMTADATAV4
+        {
+            public string identifer;
+            public uint sectionsize;
+            public uint nameoffset;
+            public uint unk1;
+            public byte type;
+            public byte channelcount;
+            public byte usedstreamcount;
+            public byte flags; //xxAx xBCC || A = 0 = BFWAV/BFSTP, 1 = BWAV || B = looping || C = Unknown, 2 for stream, 3 for prefetch stream
+            public float volume;
+            public uint samplerate;
+            public class AMTALoopInfo
+            {
+                public uint loopstartsample;
+                public uint loopendsample;
+            }
+            public float loudness;
+            public class AMTAStreamTrack
+            {
+                public uint channelcount;
+                public float volume;
+            }
+            public float peakamplitude;
+        }
+        public class AMTAMARKV4
+        {
+            public string identifier;
+            public uint sectionsize;
+            public uint entrycount;
+            public class AMTAMarker
+            {
+                uint id;
+                uint nameoffset;
+                uint startpos;
+                uint length; //one doc page says this is unknown
+            }
+        }
+        public class AMTAEXTV4
+        {
+            public string identifier;
+            public uint sectionsize;
+            public uint entrycount;
+            public class AMTAEXTEntry
+            {
+                uint unk1; //one doc page says this is a string offset
+                uint unk2;
+            }
+        }
+        public class AMTASTRGV4
+        {
+            public string identifier;
+            public uint sectionsize;
+            //null terminated strings, all entries are linked to via offsets that are relative to the end of the section header(+8 from entering into the section)
+        } 
+        #endregion
         public void ReadAMTAV4(long startPosition, NativeReader reader)
         {
             uint dataoffset = reader.ReadUInt();
