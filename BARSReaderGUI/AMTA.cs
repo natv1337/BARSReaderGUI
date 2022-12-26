@@ -103,7 +103,7 @@ namespace BARSReaderGUI
         {
             public string identifier;
             public uint sectionsize;
-            //null terminated strings, all entries are linked to via offsets that are relative to the end of the section header(+8 from entering into the section)
+            //null terminated strings, all entries are linked to via offsets that are relative to the end of the section header(strgoffset +8)
         } 
         #endregion
         public void ReadAMTAV4(long startPosition, NativeReader reader)
