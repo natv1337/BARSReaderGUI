@@ -68,7 +68,7 @@ namespace BARSReaderGUI
                 public uint loopendsample;
             }
             public float loudness;
-            public class AMTAStreamTrack
+            public class AMTAStreamTrack //theres 8 of these i think?
             {
                 public uint channelcount;
                 public float volume;
