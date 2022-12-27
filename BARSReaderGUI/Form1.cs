@@ -98,7 +98,7 @@ namespace BARSReaderGUI
                         {
                             reader.Position += 0xC;
                             int assetSize = reader.ReadInt();
-                            reader.Position -= 0xC;
+                            reader.Position -= 0x10;
 
                             audioAssets[i].assetData = reader.ReadBytes(assetSize);
                         }
