@@ -87,6 +87,15 @@ namespace BARSReaderGUI
                         AssetListBox.Items.Add(audioAssets[i].amtaData.assetName);
                     }
 
+                    for (int i = 0; i < audioAssets.Count; i++)
+                    {
+                        reader.Position = audioAssets[i].assetOffset;
+                        if (i != audioAssets.Count - 1)
+                            audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(audioAssets[i + 1].assetOffset - audioAssets[i].assetOffset));
+                        else
+                            audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(size - audioAssets[i].assetOffset));
+                    }
+
                     // Get names for audioAssets
                     //for (int i = 0; i < assetcount; i++)
                     //{
@@ -117,6 +126,7 @@ namespace BARSReaderGUI
         {
             try
             {
+                extractAudioButton.Enabled = true;
                 int index = AssetListBox.SelectedIndex;
                 AudioAssetNameLabel.Text = audioAssets[index].amtaData.assetName;
                 AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
@@ -125,7 +135,21 @@ namespace BARSReaderGUI
             }
             catch (Exception ex)
             {
-                ;
+                extractAudioButton.Enabled = false;
+            }
+        }
+
+        private void extractAudioButton_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "BWAV files (*.bwav)|*.bwav"; // Change this later to handle other audio formats
+            saveFileDialog.RestoreDirectory = true;
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                using var writer = new BinaryWriter(File.OpenWrite(saveFileDialog.FileName));
+                writer.Write(audioAssets[AssetListBox.SelectedIndex].assetData);
+                MessageBox.Show(audioAssets[AssetListBox.SelectedIndex].amtaData.assetName + " extracted successfully.");
             }
         }
     }
