@@ -175,8 +175,10 @@ namespace BARSReaderGUI
                     break;
                 default:
                     break;
-            }
-             // Change this later to handle other audio formats
+            }// Change this later to handle other audio formats
+            
+            saveFileDialog.Title = "Extract Audio";
+            saveFileDialog.FileName = audioAssets[AssetListBox.SelectedIndex].amtaData.assetName;
             saveFileDialog.RestoreDirectory = true;
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
