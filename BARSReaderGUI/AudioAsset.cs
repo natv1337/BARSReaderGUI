@@ -12,6 +12,7 @@ namespace BARSReaderGUI
         public uint amtaOffset;
         public uint assetOffset;
         public string assetName;
+        public string assetType;
         public byte[] assetData;
         public AMTA amtaData = new AMTA();
     }

@@ -90,10 +90,28 @@ namespace BARSReaderGUI
                     for (int i = 0; i < audioAssets.Count; i++)
                     {
                         reader.Position = audioAssets[i].assetOffset;
-                        if (i != audioAssets.Count - 1)
-                            audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(audioAssets[i + 1].assetOffset - audioAssets[i].assetOffset));
+
+                        audioAssets[i].assetType = reader.ReadSizedString(4);
+                        reader.Position -= 4;
+
+                        if (audioAssets[i].assetType != "BWAV")
+                        {
+                            reader.Position += 0xC;
+                            int assetSize = reader.ReadInt();
+                            reader.Position -= 0xC;
+
+                            if (i != audioAssets.Count - 1)
+                                audioAssets[i].assetData = reader.ReadBytes(assetSize);
+                            else
+                                audioAssets[i].assetData = reader.ReadBytes(assetSize);
+                        }
                         else
-                            audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(size - audioAssets[i].assetOffset));
+                        {
+                            if (i != audioAssets.Count - 1)
+                                audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(audioAssets[i + 1].assetOffset - audioAssets[i].assetOffset));
+                            else
+                                audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(size - audioAssets[i].assetOffset));
+                        }
                     }
 
                     // Get names for audioAssets
@@ -141,15 +159,31 @@ namespace BARSReaderGUI
 
         private void extractAudioButton_Click(object sender, EventArgs e)
         {
+            int index = AssetListBox.SelectedIndex;
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "BWAV files (*.bwav)|*.bwav"; // Change this later to handle other audio formats
+
+            switch (audioAssets[index].assetType)
+            {
+                case "BWAV":
+                    saveFileDialog.Filter = "BWAV files (*.bwav)|*.bwav";
+                    break;
+                case "FWAV":
+                    saveFileDialog.Filter = "BFWAV files (*.bfwav)|*.bfwav";
+                    break;
+                case "FSTP":
+                    saveFileDialog.Filter = "BFSTP files (*.bfstp)|*.bfstp";
+                    break;
+                default:
+                    break;
+            }
+             // Change this later to handle other audio formats
             saveFileDialog.RestoreDirectory = true;
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 using var writer = new BinaryWriter(File.OpenWrite(saveFileDialog.FileName));
-                writer.Write(audioAssets[AssetListBox.SelectedIndex].assetData);
-                MessageBox.Show(audioAssets[AssetListBox.SelectedIndex].amtaData.assetName + " extracted successfully.");
+                writer.Write(audioAssets[index].assetData);
+                MessageBox.Show(audioAssets[index].amtaData.assetName + " extracted successfully.");
             }
         }
     }
