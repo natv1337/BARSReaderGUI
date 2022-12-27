@@ -143,6 +143,8 @@ namespace BARSReaderGUI
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "BWAV files (*.bwav)|*.bwav"; // Change this later to handle other audio formats
+            saveFileDialog.Title = "Extract Audio";
+            saveFileDialog.FileName = audioAssets[AssetListBox.SelectedIndex].amtaData.assetName;
             saveFileDialog.RestoreDirectory = true;
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
