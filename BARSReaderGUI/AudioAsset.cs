@@ -14,6 +14,7 @@ namespace BARSReaderGUI
         public string assetName;
         public string assetType;
         public byte[] assetData;
+        public byte[] amtaAssetData;
         public AMTA amtaData = new AMTA();
     }
 }

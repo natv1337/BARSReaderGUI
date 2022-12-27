@@ -18,7 +18,7 @@ namespace BARSReaderGUI
         public string magic;
         public ushort endian;
         public ushort version;
-        public uint size;
+        public int size;
         public byte channelCount;
         public string assetName;
         public AMTADATAV4 amtaDataV4 = new AMTADATAV4();
@@ -32,7 +32,7 @@ namespace BARSReaderGUI
             magic = reader.ReadSizedString(4);
             endian = reader.ReadUShort();
             version = reader.ReadUShort();
-            size = reader.ReadUInt();
+            size = reader.ReadInt();
 
             switch ((AMTAVersion)version)
             {

@@ -87,7 +87,13 @@ namespace BARSReaderGUI
                         AssetListBox.Items.Add(audioAssets[i].amtaData.assetName);
                     }
 
-                    for (int i = 0; i < audioAssets.Count; i++)
+                    for (int i = 0; i < assetcount; i++)
+                    {
+                        reader.Position = audioAssets[i].amtaOffset;
+                        audioAssets[i].amtaAssetData = reader.ReadBytes(audioAssets[i].amtaData.size);
+                    }
+
+                    for (int i = 0; i < audioAssets.Count; i++) //read audio assets
                     {
                         reader.Position = audioAssets[i].assetOffset;
 
@@ -142,6 +148,7 @@ namespace BARSReaderGUI
             try
             {
                 extractAudioButton.Enabled = true;
+                extractMetaButton.Enabled = true;
                 int index = AssetListBox.SelectedIndex;
                 AudioAssetNameLabel.Text = audioAssets[index].amtaData.assetName;
                 AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
@@ -151,6 +158,7 @@ namespace BARSReaderGUI
             catch (Exception ex)
             {
                 extractAudioButton.Enabled = false;
+                extractMetaButton.Enabled = false;
             }
         }
 
@@ -182,6 +190,23 @@ namespace BARSReaderGUI
             {
                 using var writer = new BinaryWriter(File.Create(saveFileDialog.FileName));
                 writer.Write(audioAssets[index].assetData);
+                MessageBox.Show(audioAssets[index].amtaData.assetName + " extracted successfully.");
+            }
+        }
+
+        private void extractMetaButton_Click(object sender, EventArgs e)
+        {
+            int index = AssetListBox.SelectedIndex;
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            saveFileDialog.Filter = "BAMTA files (*.bamta)|*.bamta";
+            saveFileDialog.Title = "Extract Meta";
+            saveFileDialog.FileName = audioAssets[AssetListBox.SelectedIndex].amtaData.assetName;
+            saveFileDialog.RestoreDirectory = true;
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                using var writer = new BinaryWriter(File.Create(saveFileDialog.FileName));
+                writer.Write(audioAssets[index].amtaAssetData);
                 MessageBox.Show(audioAssets[index].amtaData.assetName + " extracted successfully.");
             }
         }
