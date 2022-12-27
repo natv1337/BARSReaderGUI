@@ -100,10 +100,7 @@ namespace BARSReaderGUI
                             int assetSize = reader.ReadInt();
                             reader.Position -= 0xC;
 
-                            if (i != audioAssets.Count - 1)
-                                audioAssets[i].assetData = reader.ReadBytes(assetSize);
-                            else
-                                audioAssets[i].assetData = reader.ReadBytes(assetSize);
+                            audioAssets[i].assetData = reader.ReadBytes(assetSize);
                         }
                         else
                         {
