@@ -180,7 +180,7 @@ namespace BARSReaderGUI
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                using var writer = new BinaryWriter(File.OpenWrite(saveFileDialog.FileName));
+                using var writer = new BinaryWriter(File.Create(saveFileDialog.FileName));
                 writer.Write(audioAssets[index].assetData);
                 MessageBox.Show(audioAssets[index].amtaData.assetName + " extracted successfully.");
             }
