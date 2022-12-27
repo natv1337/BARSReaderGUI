@@ -115,11 +115,18 @@ namespace BARSReaderGUI
 
         private void AssetListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int index = AssetListBox.SelectedIndex;
-            AudioAssetNameLabel.Text = audioAssets[index].amtaData.assetName;
-            AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
-            AudioAssetAmtaOffsetLabel.Text = audioAssets[index].amtaOffset.ToString("X");
-            AudioAssetBwavOffsetLabel.Text = audioAssets[index].assetOffset.ToString("X");
+            try
+            {
+                int index = AssetListBox.SelectedIndex;
+                AudioAssetNameLabel.Text = audioAssets[index].amtaData.assetName;
+                AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
+                AudioAssetAmtaOffsetLabel.Text = audioAssets[index].amtaOffset.ToString("X");
+                AudioAssetBwavOffsetLabel.Text = audioAssets[index].assetOffset.ToString("X");
+            }
+            catch (Exception ex)
+            {
+                ;
+            }
         }
     }
     public class AssetOffsetPair
