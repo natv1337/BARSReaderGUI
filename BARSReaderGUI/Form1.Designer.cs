@@ -35,6 +35,7 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.AssetListBox = new System.Windows.Forms.ListBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.extractMetaButton = new System.Windows.Forms.Button();
             this.extractAudioButton = new System.Windows.Forms.Button();
             this.AudioAssetBwavOffsetLabel = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -44,7 +45,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.AudioAssetNameLabel = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.extractMetaButton = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -58,7 +58,7 @@
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Padding = new System.Windows.Forms.Padding(3, 1, 0, 1);
-            this.menuStrip1.Size = new System.Drawing.Size(431, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(529, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -73,7 +73,7 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openToolStripMenuItem.Text = "Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -85,7 +85,7 @@
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.groupBox1.Size = new System.Drawing.Size(215, 216);
+            this.groupBox1.Size = new System.Drawing.Size(310, 297);
             this.groupBox1.TabIndex = 1;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Assets";
@@ -98,7 +98,7 @@
             this.AssetListBox.Location = new System.Drawing.Point(2, 17);
             this.AssetListBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.AssetListBox.Name = "AssetListBox";
-            this.AssetListBox.Size = new System.Drawing.Size(211, 198);
+            this.AssetListBox.Size = new System.Drawing.Size(306, 279);
             this.AssetListBox.TabIndex = 0;
             this.AssetListBox.SelectedIndexChanged += new System.EventHandler(this.AssetListBox_SelectedIndexChanged);
             // 
@@ -115,19 +115,31 @@
             this.groupBox2.Controls.Add(this.AudioAssetNameLabel);
             this.groupBox2.Controls.Add(this.label1);
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.groupBox2.Location = new System.Drawing.Point(216, 24);
+            this.groupBox2.Location = new System.Drawing.Point(314, 24);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.groupBox2.Size = new System.Drawing.Size(215, 216);
+            this.groupBox2.Size = new System.Drawing.Size(215, 297);
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Asset Info";
             // 
+            // extractMetaButton
+            // 
+            this.extractMetaButton.Enabled = false;
+            this.extractMetaButton.Location = new System.Drawing.Point(3, 231);
+            this.extractMetaButton.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.extractMetaButton.Name = "extractMetaButton";
+            this.extractMetaButton.Size = new System.Drawing.Size(207, 22);
+            this.extractMetaButton.TabIndex = 9;
+            this.extractMetaButton.Text = "Extract Meta";
+            this.extractMetaButton.UseVisualStyleBackColor = true;
+            this.extractMetaButton.Click += new System.EventHandler(this.extractMetaButton_Click);
+            // 
             // extractAudioButton
             // 
             this.extractAudioButton.Enabled = false;
-            this.extractAudioButton.Location = new System.Drawing.Point(4, 184);
+            this.extractAudioButton.Location = new System.Drawing.Point(4, 265);
             this.extractAudioButton.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
             this.extractAudioButton.Name = "extractAudioButton";
             this.extractAudioButton.Size = new System.Drawing.Size(207, 22);
@@ -216,30 +228,20 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Name";
             // 
-            // extractMetaButton
-            // 
-            this.extractMetaButton.Enabled = false;
-            this.extractMetaButton.Location = new System.Drawing.Point(3, 150);
-            this.extractMetaButton.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.extractMetaButton.Name = "extractMetaButton";
-            this.extractMetaButton.Size = new System.Drawing.Size(207, 22);
-            this.extractMetaButton.TabIndex = 9;
-            this.extractMetaButton.Text = "Extract Meta";
-            this.extractMetaButton.UseVisualStyleBackColor = true;
-            this.extractMetaButton.Click += new System.EventHandler(this.extractMetaButton_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(431, 240);
+            this.ClientSize = new System.Drawing.Size(529, 321);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.menuStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
             this.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.MaximizeBox = false;
             this.Name = "Form1";
             this.Text = "BARSReaderGUI";
             this.menuStrip1.ResumeLayout(false);
