@@ -38,7 +38,7 @@ namespace BARSReaderGUI
             {
                 case AMTAVersion.V4:
                     {
-                        ReadAMTAV4(reader.Position, reader);
+                        ReadAMTAV4(startPosition, reader);
                     }
                     break;
                 case AMTAVersion.V5:
@@ -82,18 +82,22 @@ namespace BARSReaderGUI
                 public float volume;
             }
             public float peakamplitude;
+            public string name;
         }
         public class AMTAMARKV4
         {
             public string identifier;
             public uint sectionsize;
             public uint entrycount;
+
+            public List<AMTAMarker> markers = new List<AMTAMarker>();
             public class AMTAMarker
             {
-                uint id;
-                uint nameoffset;
-                uint startpos;
-                uint length; //one doc page says this is unknown
+                public uint id;
+                public uint nameoffset;
+                public uint startpos;
+                public uint length; //one doc page says this is unknown
+                public string name;
             }
         }
         public class AMTAEXTV4
@@ -101,10 +105,11 @@ namespace BARSReaderGUI
             public string identifier;
             public uint sectionsize;
             public uint entrycount;
+            public List<AMTAEXTEntry> extentries = new List<AMTAEXTEntry>();
             public class AMTAEXTEntry
             {
-                uint unk1; //one doc page says this is a string offset
-                uint unk2;
+                public uint unk1; //one doc page says this is a string offset
+                public uint unk2;
             }
         }
         public class AMTASTRGV4
@@ -120,15 +125,16 @@ namespace BARSReaderGUI
             uint markoffset = reader.ReadUInt();
             uint extoffset = reader.ReadUInt();
             uint strgoffset = reader.ReadUInt();
-            ReadAMTADATAV4(dataoffset, reader);
-            ReadAMTAMARKV4(markoffset, reader);
-            ReadAMTAEXTV4(extoffset, reader);
-            ReadAMTASTRGV4(strgoffset, reader);
+            ReadAMTADATAV4(startPosition, dataoffset, strgoffset, reader);
+            ReadAMTAMARKV4(startPosition, markoffset, strgoffset, reader);
+            ReadAMTAEXTV4(startPosition, extoffset, reader);
+            //ReadAMTASTRGV4(startPosition, strgoffset, reader);
+            assetName = amtaDataV4.name;
         }
-        public void ReadAMTADATAV4(long startPosition, NativeReader reader)
+        public void ReadAMTADATAV4(long startPosition, long dataoffset, uint strgoffset, NativeReader reader)
         {
-            startPosition = reader.Position;
-            reader.ReadSizedString(4);
+            reader.Position = startPosition + dataoffset;
+            amtaDataV4.identifer = reader.ReadSizedString(4);
             amtaDataV4.sectionsize = reader.ReadUInt();
             amtaDataV4.nameoffset = reader.ReadUInt();
             amtaDataV4.unk1 = reader.ReadUInt();
@@ -141,7 +147,7 @@ namespace BARSReaderGUI
             amtaDataV4.loopInfo.loopstartsample = reader.ReadUInt();
             amtaDataV4.loopInfo.loopendsample = reader.ReadUInt();
             amtaDataV4.loudness = reader.ReadFloat();
-            for (int i = 0; i < amtaDataV4.usedstreamcount; i++)
+            for (int i = 0; i < 7; i++)
             {
                 amtaDataV4.streamTracks.Add(new AMTADATAV4.AMTAStreamTrack());
                 amtaDataV4.streamTracks[i].channelcount = reader.ReadUInt();
@@ -149,23 +155,48 @@ namespace BARSReaderGUI
             }
 
             amtaDataV4.peakamplitude = reader.ReadFloat();
+            reader.Position = startPosition + strgoffset + 8;
+            amtaDataV4.name = reader.ReadNullTerminatedString();
         }
 
-        public void ReadAMTAMARKV4(long startPosition, NativeReader reader)
+        public void ReadAMTAMARKV4(long startPosition, long markoffset, uint strgoffset, NativeReader reader)
         {
-            startPosition = reader.Position;
-            reader.ReadSizedString(4);
+            reader.Position = startPosition + markoffset;
+            long returnpos;
+            amtaMarkV4.identifier = reader.ReadSizedString(4);
+            amtaMarkV4.sectionsize = reader.ReadUInt();
+            amtaMarkV4.entrycount = reader.ReadUInt();
+            for (int i = 0; i < amtaMarkV4.entrycount; i++)
+            {
+                amtaMarkV4.markers.Add(new AMTAMARKV4.AMTAMarker());
+                amtaMarkV4.markers[i].id = reader.ReadUInt();
+                amtaMarkV4.markers[i].nameoffset = reader.ReadUInt();
+                amtaMarkV4.markers[i].startpos = reader.ReadUInt();
+                amtaMarkV4.markers[i].length = reader.ReadUInt();
+                returnpos = reader.Position;
+                reader.Position = startPosition + strgoffset + 8 + amtaMarkV4.markers[i].nameoffset;
+                amtaMarkV4.markers[i].name = reader.ReadNullTerminatedString();
+                reader.Position = returnpos;
+            }
         }
 
-        public void ReadAMTAEXTV4(long startPosition, NativeReader reader)
+        public void ReadAMTAEXTV4(long startPosition, long extoffset, NativeReader reader)
         {
-            startPosition = reader.Position;
-            reader.ReadSizedString(4);
+            reader.Position = startPosition + extoffset;
+            amtaExtV4.identifier = reader.ReadSizedString(4);
+            amtaExtV4.sectionsize = reader.ReadUInt();
+            amtaExtV4.entrycount = reader.ReadUInt();
+            for (int i = 0; i < amtaExtV4.entrycount; i++)
+            {
+                amtaExtV4.extentries.Add(new AMTAEXTV4.AMTAEXTEntry());
+                amtaExtV4.extentries[i].unk1 = reader.ReadUInt();
+                amtaExtV4.extentries[i].unk2 = reader.ReadUInt();
+            }
         }
 
-        public void ReadAMTASTRGV4(long startPosition, NativeReader reader)
+        public void ReadAMTASTRGV4(long startPosition, long strgoffset, NativeReader reader)
         {
-            startPosition = reader.Position;
+            reader.Position = startPosition + strgoffset;
             reader.ReadSizedString(4);
         } 
         #endregion
