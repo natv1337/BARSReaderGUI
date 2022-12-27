@@ -33,7 +33,7 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.BwavListBox = new System.Windows.Forms.ListBox();
+            this.AssetListBox = new System.Windows.Forms.ListBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.AudioAssetBwavOffsetLabel = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
@@ -77,7 +77,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.BwavListBox);
+            this.groupBox1.Controls.Add(this.AssetListBox);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Left;
             this.groupBox1.Location = new System.Drawing.Point(0, 24);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
@@ -88,17 +88,17 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Assets";
             // 
-            // BwavListBox
+            // AssetListBox
             // 
-            this.BwavListBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.BwavListBox.FormattingEnabled = true;
-            this.BwavListBox.ItemHeight = 15;
-            this.BwavListBox.Location = new System.Drawing.Point(2, 17);
-            this.BwavListBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
-            this.BwavListBox.Name = "BwavListBox";
-            this.BwavListBox.Size = new System.Drawing.Size(211, 169);
-            this.BwavListBox.TabIndex = 0;
-            this.BwavListBox.SelectedIndexChanged += new System.EventHandler(this.BwavListBox_SelectedIndexChanged);
+            this.AssetListBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.AssetListBox.FormattingEnabled = true;
+            this.AssetListBox.ItemHeight = 15;
+            this.AssetListBox.Location = new System.Drawing.Point(2, 17);
+            this.AssetListBox.Margin = new System.Windows.Forms.Padding(2, 1, 2, 1);
+            this.AssetListBox.Name = "AssetListBox";
+            this.AssetListBox.Size = new System.Drawing.Size(211, 169);
+            this.AssetListBox.TabIndex = 0;
+            this.AssetListBox.SelectedIndexChanged += new System.EventHandler(this.AssetListBox_SelectedIndexChanged);
             // 
             // groupBox2
             // 
@@ -230,7 +230,7 @@
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem openToolStripMenuItem;
         private GroupBox groupBox1;
-        private ListBox BwavListBox;
+        private ListBox AssetListBox;
         private GroupBox groupBox2;
         private Label label2;
         private Label AudioAssetNameLabel;

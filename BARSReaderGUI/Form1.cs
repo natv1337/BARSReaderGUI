@@ -16,7 +16,7 @@ namespace BARSReaderGUI
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 audioAssets.Clear();
-                BwavListBox.Items.Clear();
+                AssetListBox.Items.Clear();
                 string inputFile = fileDialog.FileName;
 
                 // Check for compression first.
@@ -84,7 +84,7 @@ namespace BARSReaderGUI
                     {
                         audioAssets[i].amtaData = new AMTA();
                         audioAssets[i].amtaData.ReadAMTA(audioAssets[i].amtaOffset, reader);
-                        BwavListBox.Items.Add(audioAssets[i].amtaData.assetName);
+                        AssetListBox.Items.Add(audioAssets[i].amtaData.assetName);
                     }
 
                     // Get names for audioAssets
@@ -113,9 +113,9 @@ namespace BARSReaderGUI
             }
         }
 
-        private void BwavListBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void AssetListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int index = BwavListBox.SelectedIndex;
+            int index = AssetListBox.SelectedIndex;
             AudioAssetNameLabel.Text = audioAssets[index].amtaData.assetName;
             AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
             AudioAssetAmtaOffsetLabel.Text = audioAssets[index].amtaOffset.ToString("X");
