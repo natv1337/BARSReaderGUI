@@ -3,7 +3,7 @@ namespace BARSReaderGUI
     public partial class Form1 : Form
     {
         List<AudioAsset> audioAssets = new List<AudioAsset>();
-        List<AudioAsset> sortedAudioAssets = new List<AudioAsset>(); // Surely there's a better away to do it, right? ...right?
+
         public Form1()
         {
             InitializeComponent();
@@ -17,7 +17,6 @@ namespace BARSReaderGUI
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 audioAssets.Clear();
-                sortedAudioAssets.Clear();
                 AssetListBox.Items.Clear();
                 string inputFile = fileDialog.FileName;
 
@@ -98,8 +97,7 @@ namespace BARSReaderGUI
                     }
 
                     // Sort assets.
-                    SortAudioAssets();
-                    audioAssets = sortedAudioAssets;
+                    audioAssets = SortAudioAssets();
 
                     // Reads audio assets.
                     // TODO: Explain this particular section better.
@@ -208,10 +206,12 @@ namespace BARSReaderGUI
         }
 
         // Sorts audio asssets by their asset offsets.
-        private void SortAudioAssets()
+        private List<AudioAsset> SortAudioAssets()
         {
+            List<AudioAsset> sortedAssets = new List<AudioAsset>();
             // Iterate through all assets
-            for (int i = 0; i < audioAssets.Count; i++)
+            int oldAssetCount = audioAssets.Count;
+            for (int i = 0; i < oldAssetCount; i++)
             {
                 int lowestToSave = 0;
 
@@ -235,9 +235,10 @@ namespace BARSReaderGUI
                 }
 
                 // Add the currently saved index to the sorted list and remove it from the main list so we don't run into it again on future iterations.
-                sortedAudioAssets.Add(audioAssets[lowestToSave]);
+                sortedAssets.Add(audioAssets[lowestToSave]);
                 audioAssets.RemoveAt(lowestToSave);
             }
+            return sortedAssets;
         }
     }
     public class AssetOffsetPair
