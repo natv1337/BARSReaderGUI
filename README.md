@@ -8,10 +8,6 @@ Select "File" at the top, then "Open..." then select the BARS you wish to read.
 
 You can extract the sound or meta with the two buttons on the bottom right after selecting an asset from the list on the left.
 
-## Known Issues
-Some BARS files will not open as the offsets and actual asset data order doesn't line up, not sure how to get around this. 
-An example of a BARS like this is `UI_Static.Product.300.bars.zs` in Splatoon 3.
-
 ## Compatibility
 This has been tested with:
 - Splatoon 3
