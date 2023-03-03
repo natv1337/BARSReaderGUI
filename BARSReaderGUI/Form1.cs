@@ -113,6 +113,9 @@ namespace BARSReaderGUI
                         
                         if (audioAssets[i].assetType != "BWAV")
                         {
+                            //FSTPs are prefetch assets.
+                            if (audioAssets[i].assetType == "FSTP")
+                                audioAssets[i].isPrefetch = true;
                             reader.Position += 0xC;
                             int assetSize = reader.ReadInt();
                             reader.Position -= 0x10;
@@ -121,6 +124,12 @@ namespace BARSReaderGUI
                         }
                         else
                         {
+                            //check if BWAV is a prefetch or not.
+                            reader.Position += 0xC;
+                            if (reader.ReadUShort() == 1)
+                                audioAssets[i].isPrefetch = true;
+                            reader.Position -= 0xE;
+
                             // For BWAV assets, read data of the size of the next assset offset minus the current asset offset.
                             if (i != audioAssets.Count - 1)
                                 audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(audioAssets[i + 1].assetOffset - audioAssets[i].assetOffset));
@@ -150,6 +159,8 @@ namespace BARSReaderGUI
                 AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
                 AudioAssetAmtaOffsetLabel.Text = audioAssets[index].amtaOffset.ToString("X");
                 AudioAssetBwavOffsetLabel.Text = audioAssets[index].assetOffset.ToString("X");
+                AudioAssetIsPrefetchLabel.Text = audioAssets[index].isPrefetch.ToString();
+
             }
             catch (Exception ex)
             {
@@ -211,7 +222,8 @@ namespace BARSReaderGUI
         private void SortAudioAssets()
         {
             // Iterate through all assets
-            for (int i = 0; i < audioAssets.Count; i++)
+            int oldAssetCount = audioAssets.Count;
+            for (int i = 0; i < oldAssetCount; i++)
             {
                 int lowestToSave = 0;
 

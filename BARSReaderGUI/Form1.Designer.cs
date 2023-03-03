@@ -35,6 +35,8 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.AssetListBox = new System.Windows.Forms.ListBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.AudioAssetIsPrefetchLabel = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             this.extractMetaButton = new System.Windows.Forms.Button();
             this.extractAudioButton = new System.Windows.Forms.Button();
             this.AudioAssetBwavOffsetLabel = new System.Windows.Forms.Label();
@@ -73,7 +75,7 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.openToolStripMenuItem.Text = "Open...";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
@@ -104,6 +106,8 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.AudioAssetIsPrefetchLabel);
+            this.groupBox2.Controls.Add(this.label5);
             this.groupBox2.Controls.Add(this.extractMetaButton);
             this.groupBox2.Controls.Add(this.extractAudioButton);
             this.groupBox2.Controls.Add(this.AudioAssetBwavOffsetLabel);
@@ -123,6 +127,24 @@
             this.groupBox2.TabIndex = 2;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Asset Info";
+            // 
+            // AudioAssetIsPrefetchLabel
+            // 
+            this.AudioAssetIsPrefetchLabel.AutoSize = true;
+            this.AudioAssetIsPrefetchLabel.Location = new System.Drawing.Point(3, 151);
+            this.AudioAssetIsPrefetchLabel.Name = "AudioAssetIsPrefetchLabel";
+            this.AudioAssetIsPrefetchLabel.Size = new System.Drawing.Size(59, 15);
+            this.AudioAssetIsPrefetchLabel.TabIndex = 11;
+            this.AudioAssetIsPrefetchLabel.Text = "isprefetch";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(3, 136);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(59, 15);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "IsPrefetch";
             // 
             // extractMetaButton
             // 
@@ -272,5 +294,7 @@
         private Label label3;
         private Button extractAudioButton;
         private Button extractMetaButton;
+        private Label AudioAssetIsPrefetchLabel;
+        private Label label5;
     }
 }
