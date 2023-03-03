@@ -3,6 +3,7 @@ namespace BARSReaderGUI
     public partial class Form1 : Form
     {
         List<AudioAsset> audioAssets = new List<AudioAsset>();
+        List<AudioAsset> sortedAudioAssets = new List<AudioAsset>(); // Surely there's a better away to do it, right? ...right?
         public Form1()
         {
             InitializeComponent();
@@ -16,6 +17,7 @@ namespace BARSReaderGUI
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 audioAssets.Clear();
+                sortedAudioAssets.Clear();
                 AssetListBox.Items.Clear();
                 string inputFile = fileDialog.FileName;
 
@@ -38,8 +40,7 @@ namespace BARSReaderGUI
                 // Read the file stored in the stream.
                 using (NativeReader reader = new NativeReader(fileStream))
                 {
-                    //KeyValuePair<uint, AssetOffsetPair>[] assets;
-
+                    // Check file magic.
                     string magic = reader.ReadSizedString(4);
                     if (magic != "BARS")
                     {
@@ -47,8 +48,10 @@ namespace BARSReaderGUI
                         return;
                     }
 
+                    // Read file size.
                     uint size = reader.ReadUInt();
 
+                    // Read endianness from file.
                     ushort endian = reader.ReadUShort();
                     if (endian != 0xFEFF)
                     {
@@ -56,6 +59,7 @@ namespace BARSReaderGUI
                         return;
                     }
 
+                    // Read version from the file.
                     ushort version = reader.ReadUShort();
                     if (version != 0x0102 && version != 0x0101)
                     {
@@ -80,11 +84,11 @@ namespace BARSReaderGUI
                         audioAssets[i].assetOffset = reader.ReadUInt();
                     }
 
+                    // Read asset's amta data.
                     for (int i = 0; i < assetcount; i++)
                     {
                         audioAssets[i].amtaData = new AMTA();
                         audioAssets[i].amtaData.ReadAMTA(audioAssets[i].amtaOffset, reader);
-                        AssetListBox.Items.Add(audioAssets[i].amtaData.assetName);
                     }
 
                     for (int i = 0; i < assetcount; i++)
@@ -93,13 +97,20 @@ namespace BARSReaderGUI
                         audioAssets[i].amtaAssetData = reader.ReadBytes(audioAssets[i].amtaData.size);
                     }
 
-                    for (int i = 0; i < audioAssets.Count; i++) //read audio assets
+                    // Sort assets.
+                    SortAudioAssets();
+                    audioAssets = sortedAudioAssets;
+
+                    // Reads audio assets.
+                    // TODO: Explain this particular section better.
+                    for (int i = 0; i < audioAssets.Count; i++)
                     {
                         reader.Position = audioAssets[i].assetOffset;
 
                         audioAssets[i].assetType = reader.ReadSizedString(4);
                         reader.Position -= 4;
 
+                        
                         if (audioAssets[i].assetType != "BWAV")
                         {
                             reader.Position += 0xC;
@@ -110,6 +121,7 @@ namespace BARSReaderGUI
                         }
                         else
                         {
+                            // For BWAV assets, read data of the size of the next assset offset minus the current asset offset.
                             if (i != audioAssets.Count - 1)
                                 audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(audioAssets[i + 1].assetOffset - audioAssets[i].assetOffset));
                             else
@@ -117,25 +129,9 @@ namespace BARSReaderGUI
                         }
                     }
 
-                    // Get names for audioAssets
-                    //for (int i = 0; i < assetcount; i++)
-                    //{
-                    //    reader.Position = audioAssets[i].amtaOffset + 0x24;
-                    //    uint unkOffset = reader.ReadUInt();
-                    //    reader.Position = audioAssets[i].amtaOffset + unkOffset + 36;
-                    //    audioAssets[i].assetName = reader.ReadNullTerminatedString();
-                    //    BwavListBox.Items.Add(audioAssets[i].assetName);
-                    //}
-
-                    //// Read AMTA data
-                    //for (int i = 0; i < assetcount; i++)
-                    //{
-                    //    audioAssets[i].amtaData = new AMTA();
-                    //    reader.Position = audioAssets[i].amtaOffset + 8;
-                    //    uint amtaSize = reader.ReadUInt();
-                    //    //audioAssets[i].amtaData.data = reader.ReadBytes(Convert.ToInt32(amtaSize));
-                    //}
-
+                    // Adds all of the audio asset names to the main list box.
+                    for (int i = 0; i < audioAssets.Count; i++)
+                        AssetListBox.Items.Add(audioAssets[i].amtaData.assetName);
 
                     this.Text = $"BARSReaderGUI - {fileDialog.SafeFileName} - {assetcount} Assets";
                     MessageBox.Show("Successfully read " + assetcount + " assets.");
@@ -208,6 +204,39 @@ namespace BARSReaderGUI
                 using var writer = new BinaryWriter(File.Create(saveFileDialog.FileName));
                 writer.Write(audioAssets[index].amtaAssetData);
                 MessageBox.Show(audioAssets[index].amtaData.assetName + " extracted successfully.");
+            }
+        }
+
+        // Sorts audio asssets by their asset offsets.
+        private void SortAudioAssets()
+        {
+            // Iterate through all assets
+            for (int i = 0; i < audioAssets.Count; i++)
+            {
+                int lowestToSave = 0;
+
+                for (int j = 0; j < audioAssets.Count; j++)
+                {
+                    // Check if we reached the end.
+                    if (j == audioAssets.Count - 1)
+                    {
+                        // Make the saved index j if it is smaller than the current saved one.
+                        if (audioAssets[lowestToSave].assetOffset > audioAssets[j].assetOffset)
+                            lowestToSave = j;
+
+                        break;
+                    }
+
+                    // Check if the currently saved index is greater than at j + 1. Change the saved index to this if true.
+                    if (audioAssets[lowestToSave].assetOffset > audioAssets[j + 1].assetOffset)
+                    {
+                        lowestToSave = j + 1;
+                    }
+                }
+
+                // Add the currently saved index to the sorted list and remove it from the main list so we don't run into it again on future iterations.
+                sortedAudioAssets.Add(audioAssets[lowestToSave]);
+                audioAssets.RemoveAt(lowestToSave);
             }
         }
     }
