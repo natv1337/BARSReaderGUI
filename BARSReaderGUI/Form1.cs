@@ -161,7 +161,7 @@ namespace BARSReaderGUI
             {
                 extractAudioButton.Enabled = true;
                 extractMetaButton.Enabled = true;
-                String sortedAssetName = AssetListBox.Items[AssetListBox.SelectedIndex].ToString();
+                String sortedAssetName = AssetListBox.Items[AssetListBox.SelectedIndex].ToString() ?? audioAssets[0].amtaData.assetName;
                 int index = audioNames.FindIndex(s => s.Contains(sortedAssetName));
                 AudioAssetNameLabel.Text = audioAssets[index].amtaData.assetName;
                 AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
