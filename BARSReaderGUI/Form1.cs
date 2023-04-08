@@ -16,6 +16,7 @@ namespace BARSReaderGUI
         {
             Stream fileStream;
             OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "BARS files (*.bars, *.bars.zs)|*.bars;*.bars.zs";
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
