@@ -3,6 +3,9 @@ namespace BARSReaderGUI
     public partial class Form1 : Form
     {
         List<AudioAsset> audioAssets = new List<AudioAsset>();
+        // stores all of the names of the BWAVs in a BARS file
+        // used when sorting to get the index of the actual sound
+        List<String> audioNames = new List<string>();
 
         public Form1()
         {
@@ -17,6 +20,7 @@ namespace BARSReaderGUI
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 audioAssets.Clear();
+                audioNames.Clear();
                 AssetListBox.Items.Clear();
                 string inputFile = fileDialog.FileName;
 
@@ -138,10 +142,14 @@ namespace BARSReaderGUI
 
                     // Adds all of the audio asset names to the main list box.
                     for (int i = 0; i < audioAssets.Count; i++)
+                    {
                         AssetListBox.Items.Add(audioAssets[i].amtaData.assetName);
+                        audioNames.Add(audioAssets[i].amtaData.assetName);
+                    }
 
                     this.Text = $"BARSReaderGUI - {fileDialog.SafeFileName} - {assetcount} Assets";
                     MessageBox.Show("Successfully read " + assetcount + " assets.");
+                    AssetListBox.Sorted = true;
                 }
             }
         }
@@ -152,7 +160,8 @@ namespace BARSReaderGUI
             {
                 extractAudioButton.Enabled = true;
                 extractMetaButton.Enabled = true;
-                int index = AssetListBox.SelectedIndex;
+                String sortedAssetName = AssetListBox.Items[AssetListBox.SelectedIndex].ToString();
+                int index = audioNames.FindIndex(s => s.Contains(sortedAssetName));
                 AudioAssetNameLabel.Text = audioAssets[index].amtaData.assetName;
                 AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
                 AudioAssetAmtaOffsetLabel.Text = audioAssets[index].amtaOffset.ToString("X");
