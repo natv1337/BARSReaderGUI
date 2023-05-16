@@ -3,6 +3,9 @@ namespace BARSReaderGUI
     public partial class Form1 : Form
     {
         List<AudioAsset> audioAssets = new List<AudioAsset>();
+        // stores all of the names of the BWAVs in a BARS file
+        // used when sorting to get the index of the actual sound
+        List<String> audioNames = new List<string>();
 
         public Form1()
         {
@@ -13,10 +16,12 @@ namespace BARSReaderGUI
         {
             Stream fileStream;
             OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "BARS files (*.bars, *.bars.zs)|*.bars;*.bars.zs";
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
                 audioAssets.Clear();
+                audioNames.Clear();
                 AssetListBox.Items.Clear();
                 string inputFile = fileDialog.FileName;
 
@@ -108,7 +113,7 @@ namespace BARSReaderGUI
                         audioAssets[i].assetType = reader.ReadSizedString(4);
                         reader.Position -= 4;
 
-                        
+
                         if (audioAssets[i].assetType != "BWAV")
                         {
                             //FSTPs are prefetch assets.
@@ -138,10 +143,15 @@ namespace BARSReaderGUI
 
                     // Adds all of the audio asset names to the main list box.
                     for (int i = 0; i < audioAssets.Count; i++)
+                    {
                         AssetListBox.Items.Add(audioAssets[i].amtaData.assetName);
+                        audioNames.Add(audioAssets[i].amtaData.assetName);
+                    }
 
                     this.Text = $"BARSReaderGUI - {fileDialog.SafeFileName} - {assetcount} Assets";
                     MessageBox.Show("Successfully read " + assetcount + " assets.");
+                    AssetListBox.Sorted = true;
+                    extractAllButton.Enabled = true;
                 }
             }
         }
@@ -152,7 +162,8 @@ namespace BARSReaderGUI
             {
                 extractAudioButton.Enabled = true;
                 extractMetaButton.Enabled = true;
-                int index = AssetListBox.SelectedIndex;
+                String sortedAssetName = AssetListBox.Items[AssetListBox.SelectedIndex].ToString() ?? audioAssets[0].amtaData.assetName;
+                int index = audioNames.FindIndex(s => s.Contains(sortedAssetName));
                 AudioAssetNameLabel.Text = audioAssets[index].amtaData.assetName;
                 AudioAssetCrc32HashLabel.Text = audioAssets[index].crcHash.ToString("X");
                 AudioAssetAmtaOffsetLabel.Text = audioAssets[index].amtaOffset.ToString("X");
@@ -164,6 +175,7 @@ namespace BARSReaderGUI
             {
                 extractAudioButton.Enabled = false;
                 extractMetaButton.Enabled = false;
+                extractAllButton.Enabled = false;
             }
         }
 
@@ -186,7 +198,7 @@ namespace BARSReaderGUI
                 default:
                     break;
             }// Change this later to handle other audio formats
-            
+
             saveFileDialog.Title = "Extract Audio";
             saveFileDialog.FileName = audioAssets[AssetListBox.SelectedIndex].amtaData.assetName;
             saveFileDialog.RestoreDirectory = true;
@@ -250,6 +262,28 @@ namespace BARSReaderGUI
                 audioAssets.RemoveAt(lowestToSave);
             }
             return sortedAssets;
+        }
+
+        private void extractAllButton_Click(object sender, EventArgs e)
+        {
+            // Select export folder
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            folderBrowserDialog.RootFolder = Environment.SpecialFolder.Personal;
+
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
+            {
+                int assetcount = 0;
+                // Iterate through each entry and export.
+                audioAssets.ForEach(asset =>
+                {
+                    String fileName = folderBrowserDialog.SelectedPath + "\\" + asset.amtaData.assetName + "." + asset.assetType;
+                    using var writer = new BinaryWriter(File.Create(fileName));
+                    writer.Write(asset.assetData);
+                    assetcount++;
+                });
+
+                MessageBox.Show("Successfully extracted " + assetcount + " sounds.");
+            }
         }
     }
     public class AssetOffsetPair
