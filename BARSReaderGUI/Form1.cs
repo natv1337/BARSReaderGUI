@@ -150,7 +150,6 @@ namespace BARSReaderGUI
 
                     this.Text = $"BARSReaderGUI - {fileDialog.SafeFileName} - {assetcount} Assets";
                     MessageBox.Show("Successfully read " + assetcount + " assets.");
-                    AssetListBox.Sorted = true;
                     extractAllButton.Enabled = true;
                 }
             }
