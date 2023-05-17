@@ -214,7 +214,7 @@ namespace BARSReaderGUI
         {
             int index = AssetListBox.SelectedIndex;
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            saveFileDialog.Filter = "BAMTA files (*.bamta)|*.bamta";
+            saveFileDialog.Filter = "BAMETA files (*.bameta)|*.bameta";
             saveFileDialog.Title = "Extract Meta";
             saveFileDialog.FileName = audioAssets[AssetListBox.SelectedIndex].amtaData.assetName;
             saveFileDialog.RestoreDirectory = true;
@@ -284,10 +284,5 @@ namespace BARSReaderGUI
                 MessageBox.Show("Successfully extracted " + assetcount + " sounds.");
             }
         }
-    }
-    public class AssetOffsetPair
-    {
-        public uint amtaoffset;
-        public uint bwavoffset;
     }
 }
