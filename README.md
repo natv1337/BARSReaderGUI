@@ -10,6 +10,8 @@ You can extract the sound or meta with the two buttons on the bottom right after
 
 ## Compatibility
 This has been tested with:
+- Super Mario Bros. Wonder
+- The Legend of Zelda: Tears of the Kingdom
 - Splatoon 3
 - Animal Crossing New Horizons
 - Splatoon 2
