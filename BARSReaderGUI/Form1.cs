@@ -1,3 +1,6 @@
+using System.IO;
+using System.Windows.Forms;
+
 namespace BARSReaderGUI
 {
     public partial class Form1 : Form
@@ -14,141 +17,152 @@ namespace BARSReaderGUI
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Stream fileStream;
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "BARS files (*.bars, *.bars.zs)|*.bars;*.bars.zs";
 
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                audioAssets.Clear();
-                audioNames.Clear();
-                AssetListBox.Items.Clear();
-                string inputFile = fileDialog.FileName;
+                OpenFile(fileDialog.FileName);
+            }
+        }
 
-                // Check for compression first.
-                using (NativeReader reader = new(new FileStream(inputFile, FileMode.Open)))
+        private void OpenFile(string inputFile, bool showMessages = true)
+        {
+            Stream fileStream;
+
+            audioAssets.Clear();
+            audioNames.Clear();
+            AssetListBox.Items.Clear();
+
+            // Check for compression first.
+            using (NativeReader reader = new(new FileStream(inputFile, FileMode.Open)))
+            {
+                if (reader.ReadUInt() == 0xFD2FB528)
                 {
-                    if (reader.ReadUInt() == 0xFD2FB528)
+                    ZstdUtils zstdUtils = new ZstdUtils();
+                    reader.Position -= 4;
+                    fileStream = zstdUtils.Decompress(reader.BaseStream); // Stores decompressed data into stream
+                }
+                else
+                {
+                    reader.Position -= 4;
+                    fileStream = new MemoryStream(reader.BaseStream.ToArray()); // If no compression is found, we store the original file data in the stream.
+                }
+            }
+
+            // Read the file stored in the stream.
+            using (NativeReader reader = new NativeReader(fileStream))
+            {
+                // Check file magic.
+                string magic = reader.ReadSizedString(4);
+                if (magic != "BARS")
+                {
+                    if (showMessages)
+                        MessageBox.Show("Not a BARS file.");
+                    return;
+                }
+
+                // Read file size.
+                uint size = reader.ReadUInt();
+
+                // Read endianness from file.
+                ushort endian = reader.ReadUShort();
+                if (endian != 0xFEFF)
+                {
+                    if (showMessages)
+                        MessageBox.Show("Unsupported endian!");
+                    return;
+                }
+
+                // Read version from the file.
+                ushort version = reader.ReadUShort();
+                if (version != 0x0102 && version != 0x0101)
+                {
+                    if (showMessages)
+                        MessageBox.Show("This version of BARS is unsupported at this time."); //throw this error on trying to read anything other than v1.1/1.2
+                    return;
+                }
+
+                uint assetcount = reader.ReadUInt();
+                //assets = new KeyValuePair<uint, AssetOffsetPair>[assetcount];
+
+                // Create audioAssets and tie crcHashes to them.
+                for (int i = 0; i < assetcount; i++)
+                {
+                    audioAssets.Add(new AudioAsset());
+                    audioAssets[i].crcHash = reader.ReadUInt();
+                }
+
+                // Pair ATMA/BWAV offsets with asset
+                for (int i = 0; i < assetcount; i++)
+                {
+                    audioAssets[i].amtaOffset = reader.ReadUInt();
+                    audioAssets[i].assetOffset = reader.ReadUInt();
+                }
+
+                // Read asset's amta data.
+                for (int i = 0; i < assetcount; i++)
+                {
+                    audioAssets[i].amtaData = new AMTA();
+                    audioAssets[i].amtaData.ReadAMTA(audioAssets[i].amtaOffset, reader);
+                }
+
+                for (int i = 0; i < assetcount; i++)
+                {
+                    reader.Position = audioAssets[i].amtaOffset;
+                    audioAssets[i].amtaAssetData = reader.ReadBytes(audioAssets[i].amtaData.size);
+                }
+
+                // Sort assets.
+                audioAssets = SortAudioAssets();
+
+                // Reads audio assets.
+                // TODO: Explain this particular section better.
+                for (int i = 0; i < audioAssets.Count; i++)
+                {
+                    reader.Position = audioAssets[i].assetOffset;
+
+                    audioAssets[i].assetType = reader.ReadSizedString(4);
+                    reader.Position -= 4;
+
+
+                    if (audioAssets[i].assetType != "BWAV")
                     {
-                        ZstdUtils zstdUtils = new ZstdUtils();
-                        reader.Position -= 4;
-                        fileStream = zstdUtils.Decompress(reader.BaseStream); // Stores decompressed data into stream
+                        //FSTPs are prefetch assets.
+                        if (audioAssets[i].assetType == "FSTP")
+                            audioAssets[i].isPrefetch = true;
+                        reader.Position += 0xC;
+                        int assetSize = reader.ReadInt();
+                        reader.Position -= 0x10;
+
+                        audioAssets[i].assetData = reader.ReadBytes(assetSize);
                     }
                     else
                     {
-                        reader.Position -= 4;
-                        fileStream = new MemoryStream(reader.BaseStream.ToArray()); // If no compression is found, we store the original file data in the stream.
+                        //check if BWAV is a prefetch or not.
+                        reader.Position += 0xC;
+                        if (reader.ReadUShort() == 1)
+                            audioAssets[i].isPrefetch = true;
+                        reader.Position -= 0xE;
+
+                        // For BWAV assets, read data of the size of the next assset offset minus the current asset offset.
+                        if (i != audioAssets.Count - 1)
+                            audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(audioAssets[i + 1].assetOffset - audioAssets[i].assetOffset));
+                        else
+                            audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(size - audioAssets[i].assetOffset));
                     }
                 }
 
-                // Read the file stored in the stream.
-                using (NativeReader reader = new NativeReader(fileStream))
+
+                // Adds all of the audio asset names to the main list box.
+                if (showMessages)
                 {
-                    // Check file magic.
-                    string magic = reader.ReadSizedString(4);
-                    if (magic != "BARS")
-                    {
-                        MessageBox.Show("Not a BARS file.");
-                        return;
-                    }
-
-                    // Read file size.
-                    uint size = reader.ReadUInt();
-
-                    // Read endianness from file.
-                    ushort endian = reader.ReadUShort();
-                    if (endian != 0xFEFF)
-                    {
-                        MessageBox.Show("Unsupported endian!");
-                        return;
-                    }
-
-                    // Read version from the file.
-                    ushort version = reader.ReadUShort();
-                    if (version != 0x0102 && version != 0x0101)
-                    {
-                        MessageBox.Show("This version of BARS is unsupported at this time."); //throw this error on trying to read anything other than v1.1/1.2
-                        return;
-                    }
-
-                    uint assetcount = reader.ReadUInt();
-                    //assets = new KeyValuePair<uint, AssetOffsetPair>[assetcount];
-
-                    // Create audioAssets and tie crcHashes to them.
-                    for (int i = 0; i < assetcount; i++)
-                    {
-                        audioAssets.Add(new AudioAsset());
-                        audioAssets[i].crcHash = reader.ReadUInt();
-                    }
-
-                    // Pair ATMA/BWAV offsets with asset
-                    for (int i = 0; i < assetcount; i++)
-                    {
-                        audioAssets[i].amtaOffset = reader.ReadUInt();
-                        audioAssets[i].assetOffset = reader.ReadUInt();
-                    }
-
-                    // Read asset's amta data.
-                    for (int i = 0; i < assetcount; i++)
-                    {
-                        audioAssets[i].amtaData = new AMTA();
-                        audioAssets[i].amtaData.ReadAMTA(audioAssets[i].amtaOffset, reader);
-                    }
-
-                    for (int i = 0; i < assetcount; i++)
-                    {
-                        reader.Position = audioAssets[i].amtaOffset;
-                        audioAssets[i].amtaAssetData = reader.ReadBytes(audioAssets[i].amtaData.size);
-                    }
-
-                    // Sort assets.
-                    audioAssets = SortAudioAssets();
-
-                    // Reads audio assets.
-                    // TODO: Explain this particular section better.
-                    for (int i = 0; i < audioAssets.Count; i++)
-                    {
-                        reader.Position = audioAssets[i].assetOffset;
-
-                        audioAssets[i].assetType = reader.ReadSizedString(4);
-                        reader.Position -= 4;
-
-
-                        if (audioAssets[i].assetType != "BWAV")
-                        {
-                            //FSTPs are prefetch assets.
-                            if (audioAssets[i].assetType == "FSTP")
-                                audioAssets[i].isPrefetch = true;
-                            reader.Position += 0xC;
-                            int assetSize = reader.ReadInt();
-                            reader.Position -= 0x10;
-
-                            audioAssets[i].assetData = reader.ReadBytes(assetSize);
-                        }
-                        else
-                        {
-                            //check if BWAV is a prefetch or not.
-                            reader.Position += 0xC;
-                            if (reader.ReadUShort() == 1)
-                                audioAssets[i].isPrefetch = true;
-                            reader.Position -= 0xE;
-
-                            // For BWAV assets, read data of the size of the next assset offset minus the current asset offset.
-                            if (i != audioAssets.Count - 1)
-                                audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(audioAssets[i + 1].assetOffset - audioAssets[i].assetOffset));
-                            else
-                                audioAssets[i].assetData = reader.ReadBytes(Convert.ToInt32(size - audioAssets[i].assetOffset));
-                        }
-                    }
-
-                    // Adds all of the audio asset names to the main list box.
                     for (int i = 0; i < audioAssets.Count; i++)
                     {
                         AssetListBox.Items.Add(audioAssets[i].amtaData.assetName);
                         audioNames.Add(audioAssets[i].amtaData.assetName);
                     }
-
-                    this.Text = $"BARSReaderGUI - {fileDialog.SafeFileName} - {assetcount} Assets";
+                    this.Text = $"BARSReaderGUI - {Path.GetFileName(inputFile)} - {assetcount} Assets";
                     MessageBox.Show("Successfully read " + assetcount + " assets.");
                     extractAllButton.Enabled = true;
                 }
@@ -282,6 +296,44 @@ namespace BARSReaderGUI
                 });
 
                 MessageBox.Show("Successfully extracted " + assetcount + " sounds.");
+            }
+        }
+
+        private void BatchExtract_Click(object sender, EventArgs e)
+        {
+            // Select import folder
+            FolderBrowserDialog inputFolderBrowser = new FolderBrowserDialog();
+            inputFolderBrowser.Description = "Choose input folder";
+            inputFolderBrowser.UseDescriptionForTitle = true;
+            inputFolderBrowser.RootFolder = Environment.SpecialFolder.Personal;
+
+            // Select output folder
+            FolderBrowserDialog outputFolderBrowser = new FolderBrowserDialog();
+            outputFolderBrowser.Description = "Choose output folder";
+            outputFolderBrowser.UseDescriptionForTitle = true;
+            outputFolderBrowser.RootFolder = Environment.SpecialFolder.Personal;
+
+            if (inputFolderBrowser.ShowDialog() == DialogResult.OK && outputFolderBrowser.ShowDialog() == DialogResult.OK)
+            {
+                int assetcount = 0;
+                foreach (var file in Directory.GetFiles(inputFolderBrowser.SelectedPath, "*", 
+                    SearchOption.AllDirectories).Where(x => x.ToLower().EndsWith("bars") || x.ToLower().EndsWith("bars.zs")))
+                {
+                    OpenFile(file, false);
+                    assetcount++;
+
+                    // Iterate through each entry and import.
+                    audioAssets.ForEach(asset =>
+                    {
+                        string outDir = Path.Combine(outputFolderBrowser.SelectedPath, Path.GetFileNameWithoutExtension(file));
+                        Directory.CreateDirectory(outDir);
+                        String fileName = outDir + "\\" + asset.amtaData.assetName + "." + asset.assetType;
+                        using var writer = new BinaryWriter(File.Create(fileName));
+                        writer.Write(asset.assetData);
+                    });
+                }
+
+                MessageBox.Show("Successfully extracted " + assetcount + " files.");
             }
         }
     }
